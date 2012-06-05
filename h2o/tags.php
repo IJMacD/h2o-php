@@ -135,7 +135,7 @@ class For_Tag extends H2o_Node {
         // Make debugging a bit easier
         if( ! is_array( $iteratable ) && ! $iteratable instanceof Traversable ) {
             $repr = (is_object( $iteratable ) ? '<class: ' . get_class( $iteratable ) . '>' : (string)$iteratable );
-            throw new InvalidArgumentException("The for tag cannot iterate over the value: " . $repr);
+            throw new InvalidArgumentException("The for tag cannot iterate over the value: (" .$this->iteratable.") ". $repr);
         }
 
         if ($this->reversed)
