@@ -150,8 +150,8 @@ class H2o_Context implements ArrayAccess {
                     $o = array_slice($object, 0, 1);
                     $object = count($o) ? $o[0] : null;
                 } elseif ($part === 'last') {
-                    $last = count($object)-1;
-                    $object = isset($object[$last])?$object[$last]:null;
+                    $o = array_slice($object, -1, 1);
+                    $object = count($o) ? $o[0] : null;
                 } elseif ($part === 'size' or $part === 'length') {
                     return count($object);
                 } else {
