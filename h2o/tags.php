@@ -486,5 +486,14 @@ class Csrf_token_Tag extends H2o_Node {
     }
 }
 
-H2o::addTag(array('block', 'extends', 'include', 'if', 'ifchanged', 'for', 'with', 'cycle', 'load', 'debug', 'comment', 'now', 'autoescape', 'csrf_token'));
+class Raw_Tag extends H2o_Node {
+    function __construct($argstring, $parser, $pos=0){
+        $this->body = $parser->parse('endraw');
+    }
+    function render($context, $stream){
+        $stream->write($this->body);
+    }
+}
+
+H2o::addTag(array('block', 'extends', 'include', 'if', 'ifchanged', 'for', 'with', 'cycle', 'load', 'debug', 'comment', 'now', 'autoescape', 'csrf_token', 'raw'));
 ?>
