@@ -487,11 +487,12 @@ class Csrf_token_Tag extends H2o_Node {
 }
 
 class Raw_Tag extends H2o_Node {
+    private $body;
     function __construct($argstring, $parser, $pos=0){
-        $this->body = $parser->parse('endraw');
+        $this->body = $parser->parseRaw('endraw');
     }
     function render($context, $stream){
-        $stream->write($this->body);
+        $this->body->render($context, $stream);
     }
 }
 

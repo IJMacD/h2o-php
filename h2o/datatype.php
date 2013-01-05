@@ -65,11 +65,12 @@ class Evaluator {
  * $type of token, Block | Variable
  */
 class H2o_Token {
-    function __construct ($type, $content, $position) {
+    function __construct ($type, $content, $position, $raw) {
         $this->type = $type;
         $this->content = $content;
         $this->result='';
         $this->position = $position;
+        $this->raw = $raw;
     }
 
     function write($content){
@@ -98,10 +99,10 @@ class TokenStream  {
         return array_pop($this->stream);
     }
 
-    function feed($type, $contents, $position) {
+    function feed($type, $contents, $position, $raw) {
         if ($this->closed)
             throw new Exception('cannot feed closed stream');
-        $this->stream[] = new H2o_Token($type, $contents, $position);
+        $this->stream[] = new H2o_Token($type, $contents, $position, $raw);
     }
 
     function push($token) {

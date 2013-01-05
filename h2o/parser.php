@@ -22,18 +22,20 @@ class H2o_Lexer {
 
         foreach ($matches as $match) {
             if ($match[1])
-            $result->feed('text', $match[1], $pos);
-            $tagpos = $pos + strlen($match[1]);
+            $result->feed('text', $match[1], $pos, $match[1]);
+            $pretext_len = strlen($match[1]);
+            $tagpos = $pos + $pretext_len;
+            $raw_text = substr($match[0], $pretext_len);
             if ($match[2])
-            $result->feed('block', trim($match[2]), $tagpos);
+            $result->feed('block', trim($match[2]), $tagpos, $raw_text);
             elseif ($match[3])
-            $result->feed('variable', trim($match[3]), $tagpos);
+            $result->feed('variable', trim($match[3]), $tagpos, $raw_text);
             elseif ($match[4])
-            $result->feed('comment', trim($match[4]), $tagpos);
+            $result->feed('comment', trim($match[4]), $tagpos, $raw_text);
             $pos += strlen($match[0]);
         }
         if ($pos < strlen($source)){
-            $result->feed('text', substr($source, $pos), $pos);
+            $result->feed('text', substr($source, $pos), $pos, substr($source, $pos));
         }
         $result->close();
         return $result;
@@ -65,7 +67,7 @@ class H2o_Parser {
     function &parse() {
         $until = func_get_args();
         $nodelist = new NodeList($this);
-        while($token = $this->tokenstream->next()) { 
+        while($token = $this->tokenstream->next()) {
             //$token = $this->tokenstream->current();
             switch($token->type) {
                 case 'text' :
@@ -88,6 +90,31 @@ class H2o_Parser {
                     @list($name, $args) = preg_split('/\s+/',$token->content, 2);
                     $node = H2o::createTag($name, $args, $this, $token->position);
                     $this->token = $token;
+            }
+            $this->searching = join(',',$until);
+            $this->first = false;
+            $nodelist->append($node);
+        }
+
+        if ($until) {
+            throw new TemplateSyntaxError('Unclose tag, expecting '. $until[0]);
+        }
+        return $nodelist;
+    }
+
+    function &parseRaw() {
+        $until = func_get_args();
+        $nodelist = new NodeList($this);
+        while($token = $this->tokenstream->next()) {
+            //$token = $this->tokenstream->current();
+            switch ($token->type) {
+                case 'block':
+                    if (in_array($token->content, $until)) {
+                        $this->token = $token;
+                        return $nodelist;
+                    }
+                default:
+                    $node = new TextNode($token->raw, $token->position);
             }
             $this->searching = join(',',$until);
             $this->first = false;
